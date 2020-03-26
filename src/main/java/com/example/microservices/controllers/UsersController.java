@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -32,9 +33,18 @@ public class UsersController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<Object> createUser(@RequestBody Users user) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody Users user) {
         Users savedUser = userDaoService.save(user);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedUser.getId()).toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public Users deleteUsers(@PathVariable Integer id) {
+        Users user = userDaoService.deleteById(id);
+        if(user==null){
+            throw new UserNotFoundException("id " + id);
+        }
+        return user;
     }
 }
